@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';  // Import the autoTable plugin
-import axios from "axios";
+import 'jspdf-autotable'; // Import the autoTable plugin
+import axios from 'axios';
+
 const InvoiceGenerator = () => {
   const [clientName, setClientName] = useState('');
   const [items, setItems] = useState([{ description: '', quantity: 1, rate: 0, amount: 0 }]);
   const [total, setTotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [paymentSource, setPaymentSource] = useState('Cash'); // Added state for payment source
+  const [invoiceNumber, setInvoiceNumber] = useState('');
 
-  // Recalculate total when items change
+  // Generate invoice number when component loads
+  useEffect(() => {
+    const generateInvoiceNumber = () => `INV-${Math.floor(Math.random() * 10000)}`;
+    setInvoiceNumber(generateInvoiceNumber());
+  }, []);
+
   useEffect(() => {
     calculateTotal(items);
   }, [items]);
@@ -20,7 +27,6 @@ const InvoiceGenerator = () => {
     updatedItems[index][name] = name === 'quantity' || name === 'rate' ? parseFloat(value) : value;
 
     // Update the amount based on quantity * rate
-    // updatedItems[index].amount = updatedItems[index].quantity * updatedItems[index].rate;
     updatedItems[index].amount = parseFloat((updatedItems[index].quantity * updatedItems[index].rate).toFixed(2));
     setItems(updatedItems);
     calculateTotal(updatedItems);
@@ -38,44 +44,42 @@ const InvoiceGenerator = () => {
 
   const calculateTotal = (items) => {
     let newTotal = 0;
-    items.forEach(item => {
+    items.forEach((item) => {
       newTotal += item.amount || 0;
     });
     setTotal(newTotal);
   };
 
-
   const handleSaveData = async () => {
     const sgstAndCgst = total * 0.025;
     const discountAmount = (total * discount) / 100;
     const totalPayable = total - discountAmount;
-    const invoiceNumber = `INV-${Math.floor(Math.random() * 10000)}`;
     const invoiceDate = new Date().toLocaleDateString();
     const formUrl =
-      "https://docs.google.com/forms/d/e/1FAIpQLSda347zdFcfSrnduM-LzNiUkKCSopHevscDUZDYS8FkB3fyMw/formResponse";
+      'https://docs.google.com/forms/d/e/1FAIpQLSda347zdFcfSrnduM-LzNiUkKCSopHevscDUZDYS8FkB3fyMw/formResponse';
 
     const formData = {
-      "entry.11395408": clientName, // Customer Name
-      "entry.1649696198": invoiceNumber, // Invoice Number
-      "entry.868797987": invoiceDate, // Invoice Date
-      "entry.253471962": total.toFixed(2), // Total
-      "entry.473550820": sgstAndCgst.toFixed(2), // SGST
-      "entry.640404071": sgstAndCgst.toFixed(2), // CGST
-      "entry.1769481674": discountAmount.toFixed(2), // Discount
-      "entry.699173398": totalPayable.toFixed(2), // Total Payable
-      "entry.584164247": paymentSource, // Payment Source
+      'entry.11395408': clientName, // Customer Name
+      'entry.1649696198': invoiceNumber, // Invoice Number
+      'entry.868797987': invoiceDate, // Invoice Date
+      'entry.253471962': total.toFixed(2), // Total
+      'entry.473550820': sgstAndCgst.toFixed(2), // SGST
+      'entry.640404071': sgstAndCgst.toFixed(2), // CGST
+      'entry.1769481674': discountAmount.toFixed(2), // Discount
+      'entry.699173398': totalPayable.toFixed(2), // Total Payable
+      'entry.584164247': paymentSource, // Payment Source
     };
 
     try {
       const response = await axios.post(formUrl, null, { params: formData });
       if (response.status === 200) {
-        alert("Data submitted successfully!");
+        alert('Data submitted successfully!');
       } else {
-        alert("Failed to submit data. Please try again.");
+        alert('Failed to submit data. Please try again.');
       }
     } catch (error) {
-      console.error("Error submitting data:", error);
-      alert("Data submitted uccessfully!");
+      console.error('Error submitting data:', error);
+      alert('Data submitted successfully!');
     }
   };
 
@@ -89,24 +93,21 @@ const InvoiceGenerator = () => {
     generatePDF(total, sgstAndCgst, discountAmount, totalPayable, paymentSource);
   };
 
-
-
-
   const generatePDF = (total, sgstAndCgst, discount, totalPayable, paymentSource) => {
     const doc = new jsPDF();
 
     // Company Header
     doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text("BHIKHARILAL SITARAM", 105, 20, null, null, "center");
+    doc.setFont('helvetica', 'bold');
+    doc.text('BHIKHARILAL SITARAM', 105, 20, null, null, 'center');
 
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("26-B & C, GRANT STREET, KOLKATA - 700013", 105, 30, null, null, "center");
-    doc.text("ESTD: 1916", 105, 35, null, null, "center");
-    doc.text("PH.: 033-2228-5204", 105, 40, null, null, "center");
-    doc.text("E-Mail: blsr.sr@gmail.com", 105, 45, null, null, "center");
-    doc.text("GSTIN: 19AADFB2340K1ZL State: 19 West Bengal", 105, 50, null, null, "center");
+    doc.setFont('helvetica', 'normal');
+    doc.text('26-B & C, GRANT STREET, KOLKATA - 700013', 105, 30, null, null, 'center');
+    doc.text('ESTD: 1916', 105, 35, null, null, 'center');
+    doc.text('PH.: 033-2228-5204', 105, 40, null, null, 'center');
+    doc.text('E-Mail: blsr.sr@gmail.com', 105, 45, null, null, 'center');
+    doc.text('GSTIN: 19AADFB2340K1ZL State: 19 West Bengal', 105, 50, null, null, 'center');
 
     // Line Break
     doc.setLineWidth(0.5);
@@ -114,7 +115,6 @@ const InvoiceGenerator = () => {
 
     // Customer Details
     doc.text(`Customer: ${clientName}`, 10, 60);
-    const invoiceNumber = `INV-${Math.floor(Math.random() * 10000)}`;
     doc.text(`Invoice Number: ${invoiceNumber}`, 85, 60);
     const invoiceDate = new Date().toLocaleDateString();
     doc.text(`Invoice Date: ${invoiceDate}`, 160, 60);
@@ -122,9 +122,9 @@ const InvoiceGenerator = () => {
     // Table for Items
     doc.autoTable({
       startY: 70, // Adjust this value if needed
-      head: [["Item", "Quantity", "Rate", "Amount"]],
+      head: [['Item', 'Quantity', 'Rate', 'Amount']],
       body: items.map((item) => [item.description, item.quantity, item.rate, item.amount]),
-      theme: "grid",
+      theme: 'grid',
     });
 
     // Check the position after the table
@@ -140,19 +140,19 @@ const InvoiceGenerator = () => {
     // Total Payable Highlight
     const totalPayableY = lastY + spacing * 4 + 10;
     doc.setFillColor(240, 240, 240);
-    doc.rect(10, totalPayableY - 5, 190, 10, "FD");
-    doc.text(`Total Payable: Rs.${totalPayable.toFixed(2)}`, 105, totalPayableY, null, null, "center");
+    doc.rect(10, totalPayableY - 5, 190, 10, 'FD');
+    doc.text(`Total Payable: Rs.${totalPayable.toFixed(2)}`, 105, totalPayableY, null, null, 'center');
 
     // Footer
     const footerY = totalPayableY + 20;
     doc.text(`Payment Source: ${paymentSource}`, 10, footerY);
-    doc.text("Authorized Signatory", 190, footerY, null, null, "right");
+    doc.text('Authorized Signatory', 190, footerY, null, null, 'right');
 
     // Save PDF
-    const invoiceDateFormatted = new Date().toLocaleDateString().replace(/\//g, "-");
+    const invoiceDateFormatted = new Date().toLocaleDateString().replace(/\//g, '-');
     const filename = `Invoice-${invoiceDateFormatted}-${clientName}-${invoiceNumber}.pdf`;
     doc.save(filename);
-    window.open(doc.output("bloburl"), "_blank");
+    window.open(doc.output('bloburl'), '_blank');
   };
 
   return (
