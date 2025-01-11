@@ -3,6 +3,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable'; // Import the autoTable plugin
 import axios from 'axios';
 
+
 const InvoiceGenerator = () => {
   const [clientName, setClientName] = useState('');
   const [items, setItems] = useState([{ description: '', quantity: '', unit: '', rate: '', amount: '' }]);
@@ -32,7 +33,8 @@ const InvoiceGenerator = () => {
       if (!isNaN(startingNumber) && startingNumber > 0) {
         setInvoiceNumber(startingNumber);
         localStorage.setItem("invoiceNumber", startingNumber); // Save it to localStorage
-      } else {
+      }
+      else {
         alert("Invalid input. Starting from 1.");
         setInvoiceNumber(1);
         localStorage.setItem("invoiceNumber", 1);
@@ -144,39 +146,6 @@ const InvoiceGenerator = () => {
     setTotal(newTotal);
   };
 
-  // const handleSaveData = async () => {
-  //   const sgstAndCgst = total * 0.025;
-  //   const discountAmount = (total * discount) / 100;
-  //   const totalPayable = total - discountAmount;
-  //   const invoiceDate = new Date().toLocaleDateString();
-  //   const formUrl =
-  //     'https://docs.google.com/forms/d/e/1FAIpQLSda347zdFcfSrnduM-LzNiUkKCSopHevscDUZDYS8FkB3fyMw/formResponse';
-
-  //   const formData = {
-  //     'entry.11395408': clientName, // Customer Name
-  //     'entry.1649696198': invoiceNumber, // Invoice Number
-  //     'entry.868797987': invoiceDate, // Invoice Date
-  //     'entry.253471962': total.toFixed(2), // Total
-  //     'entry.473550820': sgstAndCgst.toFixed(2), // SGST
-  //     'entry.640404071': sgstAndCgst.toFixed(2), // CGST
-  //     'entry.1769481674': discountAmount.toFixed(2), // Discount
-  //     'entry.699173398': totalPayable.toFixed(2), // Total Payable
-  //     'entry.584164247': paymentSource, // Payment Source
-  //   };
-
-  //   try {
-  //     const response = await axios.post(formUrl, null, { params: formData });
-  //     if (response.status === 200) {
-  //       alert('Data submitted successfully!');
-  //     } else {
-  //       alert('Failed to submit data. Please try again.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error submitting data:', error);
-  //     alert('Data submitted successfully!');
-  //   }
-  // };
-
 
   const handleSaveData = async () => {
     const sgstAndCgst = total * 0.025;
@@ -217,10 +186,6 @@ const InvoiceGenerator = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // const sgstAndCgst = total * 0.025; // SGST and CGST are part of the total
-    // const discountAmount = (total * discount) / 100; // Calculate discount as percentage
-    // const totalPayable = total - discountAmount; // Total payable excludes SGST/CGST addition
 
     generatePDF();
   };
@@ -333,6 +298,43 @@ const InvoiceGenerator = () => {
 
   const handleClick = () => {
     generateInvoice(); // Generate the invoice
+  };
+
+  // const handleLogout = () => {
+  //   // Clear localStorage data
+  //   localStorage.removeItem("invoiceNumber");
+
+  //   // Optionally clear other state variables if necessary
+  //   setClientName('');
+  //   setItems([{ description: '', quantity: '', unit: '', rate: '', amount: '' }]);
+  //   setTotal(0);
+  //   setDiscount(0);
+  //   setPaymentSource('Cash');
+  //   setInvoiceNumber(null);
+
+  //   // Redirect the user (if applicable)
+  //   window.location.reload(); // Reload the page to reset state
+  //   window.location.href = 'blsr.in';
+  //   // Alternatively, you could navigate to a login or welcome page
+  //   // window.location.href = '/login'; // Example
+  // };
+
+  const handleLogout = () => {
+    // Clear session-related data from localStorage
+    localStorage.removeItem("adminLogin"); // Remove admin login credentials
+    localStorage.removeItem("loginTimestamp"); // Remove session timestamp
+    localStorage.removeItem("invoiceNumber"); // Clear any stored invoice number
+
+    // Clear state variables (related to invoice data)
+    setClientName('');
+    setItems([{ description: '', quantity: '', unit: '', rate: '', amount: '' }]);
+    setTotal(0);
+    setDiscount(0);
+    setPaymentSource('Cash');
+    setInvoiceNumber(null); // Reset invoice number to null
+
+    // Redirect the user to the login page
+    window.location.href = '/'; // Redirect to the login page (default route)
   };
 
 
@@ -493,6 +495,13 @@ const InvoiceGenerator = () => {
           onClick={handleClick}
         >
           Generate Invoice
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600"
+        >
+          Logout
         </button>
 
       </form>
