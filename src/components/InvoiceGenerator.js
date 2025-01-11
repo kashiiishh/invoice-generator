@@ -497,12 +497,25 @@ const InvoiceGenerator = () => {
           Generate Invoice
         </button>
 
-        <button
+        {/* <button
           onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600"
+          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md mt-6 hover:bg-red-600"
         >
           Logout
-        </button>
+        </button> */}
+
+
+
+
+        <div className="flex items-center justify-center">
+
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 mt-6 w-full rounded-md shadow-md hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
 
       </form>
 
