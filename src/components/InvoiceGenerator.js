@@ -150,7 +150,10 @@ const InvoiceGenerator = () => {
   const handleSaveData = async () => {
     const sgstAndCgst = total * 0.025;
     const discountAmount = (total * discount) / 100;
-    const totalPayable = total - discountAmount;
+    let totalPayable = total - discountAmount;
+
+
+    totalPayable = Math.round(totalPayable);
     const invoiceDate = new Date().toLocaleDateString();
 
     // Format the invoice number as INV-{invoiceNumber}
@@ -198,7 +201,8 @@ const InvoiceGenerator = () => {
       // Calculate SGST, CGST, Discount, and Total Payable
       const sgstAndCgst = total * 0.025;
       const discountAmount = (total * discount) / 100;
-      const totalPayable = total - discountAmount;
+      let totalPayable = total - discountAmount;
+      totalPayable = Math.round(totalPayable);
 
       // Format the invoice number and date
       const formattedInvoiceNumber = `INV-${invoiceNumber}`;
